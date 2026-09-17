@@ -1,0 +1,6 @@
+node_modules/
+.aws-sam/
+__pycache__/
+.env
+*.pem
+.DS_Store
