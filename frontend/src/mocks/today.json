@@ -1,0 +1,50 @@
+{
+  "parent": {
+    "id": "parent-001",
+    "name": "Mummy ji",
+    "language": "hi"
+  },
+  "slots": [
+    {
+      "name": "morning",
+      "time": "08:00",
+      "medicines": [
+        {
+          "id": "med-001",
+          "brand": "Dolo 650",
+          "salts": ["Paracetamol"],
+          "strength": "650 mg",
+          "slots": ["morning", "night"],
+          "food": "after",
+          "durationDays": 5,
+          "photoUrl": "/pills/dolo.jpg",
+          "confidence": 0.92,
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "name": "afternoon",
+      "time": "14:00",
+      "medicines": []
+    },
+    {
+      "name": "night",
+      "time": "21:00",
+      "medicines": [
+        {
+          "id": "med-002",
+          "brand": "Telma 40",
+          "salts": ["Telmisartan"],
+          "strength": "40 mg",
+          "slots": ["night"],
+          "food": "after",
+          "durationDays": 30,
+          "photoUrl": "/pills/telma.jpg",
+          "confidence": 0.95,
+          "status": "PENDING"
+        }
+      ]
+    }
+  ]
+}
