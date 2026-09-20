@@ -1,0 +1,47 @@
+{
+  "medicines": [
+    {
+      "brand": "Telmikind 40",
+      "strength": "40 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.96,
+      "source_text": "TELMIKIND 40  1-0-0  30 days"
+    },
+    {
+      "brand": "Clopitab 75",
+      "strength": "75 mg",
+      "form": "tablet",
+      "frequency_code": "0-0-1",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.95,
+      "source_text": "CLOPITAB 75  0-0-1  30 days"
+    },
+    {
+      "brand": "Atorva 10",
+      "strength": "10 mg",
+      "form": "tablet",
+      "frequency_code": "0-0-1",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.93,
+      "source_text": "ATORVA 10  HS"
+    },
+    {
+      "brand": "Met XL 25",
+      "strength": "25 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.9,
+      "source_text": "MET XL 25  OD"
+    }
+  ],
+  "unreadable_lines": [],
+  "doctor_name": "Dr. A. Menon",
+  "prescription_date": "2026-09-02"
+}

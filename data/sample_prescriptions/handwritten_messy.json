@@ -1,0 +1,40 @@
+{
+  "medicines": [
+    {
+      "brand": "Pantocid 40",
+      "strength": "40 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "before",
+      "duration_days": 10,
+      "confidence": 0.58,
+      "source_text": "Pantocid 40 1-0-0 (handwritten, faint)"
+    },
+    {
+      "brand": "Zerodol SP",
+      "strength": "",
+      "form": "tablet",
+      "frequency_code": "1-0-1",
+      "food": "after",
+      "duration_days": 5,
+      "confidence": 0.61,
+      "source_text": "Zerodol-SP 1-0-1 x5"
+    },
+    {
+      "brand": "Combiflam",
+      "strength": "400 mg + 325 mg",
+      "form": "tablet",
+      "frequency_code": "SOS",
+      "food": "after",
+      "duration_days": 0,
+      "confidence": 0.72,
+      "source_text": "Combiflam SOS pain"
+    }
+  ],
+  "unreadable_lines": [
+    "Syp. ___ 5ml TDS",
+    "X-ray KUB if no relief"
+  ],
+  "doctor_name": "",
+  "prescription_date": ""
+}

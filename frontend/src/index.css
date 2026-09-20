@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* Measured at runtime by App so anything that has to sit above the bottom
+       bar can do so without hard-coding its height. */
+    --nav-h: 76px;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Parent screens must survive the phone's font size being pushed to 200%. */
+  .parent-scope {
+    font-size: clamp(22px, 5.2vw, 26px);
+  }
+
+  :focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 3px;
+    border-radius: 12px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl font-semibold
+           transition-transform duration-200 ease-gentle active:scale-[.98]
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-primary {
+    @apply btn bg-teal text-white shadow-lift hover:bg-teal-deep;
+  }
+  .btn-ghost {
+    @apply btn bg-white text-ink border border-black/10 hover:bg-black/[.03];
+  }
+  .btn-parent {
+    @apply btn-primary w-full min-h-touch px-6 py-5 text-parent-lg;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-black/[.05];
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold;
+  }
+  .label {
+    @apply text-sm font-semibold text-ink-soft;
+  }
+  .input {
+    @apply w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-base
+           outline-none focus:border-teal focus:ring-2 focus:ring-teal/20;
+  }
+}
+
+/* Delight without distraction, and nothing that moves for people who asked
+   their phone to stop animating. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

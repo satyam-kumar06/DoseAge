@@ -1,0 +1,65 @@
+[
+  {
+    "brand": "Dolo 650",
+    "salt": "Paracetamol",
+    "strength": "650mg",
+    "brand_price_per_strip": 32.0,
+    "strip_size": 15,
+    "jan_aushadhi_name": "Paracetamol Tablets IP 650mg",
+    "jan_aushadhi_price_per_strip": 10.5
+  },
+  {
+    "brand": "Calpol 500",
+    "salt": "Paracetamol",
+    "strength": "500mg",
+    "brand_price_per_strip": 21.0,
+    "strip_size": 15,
+    "jan_aushadhi_name": "Paracetamol Tablets IP 500mg",
+    "jan_aushadhi_price_per_strip": 7.0
+  },
+  {
+    "brand": "Telma 40",
+    "salt": "Telmisartan",
+    "strength": "40mg",
+    "brand_price_per_strip": 145.0,
+    "strip_size": 15,
+    "jan_aushadhi_name": "Telmisartan Tablets IP 40mg",
+    "jan_aushadhi_price_per_strip": 18.0
+  },
+  {
+    "brand": "Telmikind 40",
+    "salt": "Telmisartan",
+    "strength": "40mg",
+    "brand_price_per_strip": 110.0,
+    "strip_size": 10,
+    "jan_aushadhi_name": "Telmisartan Tablets IP 40mg",
+    "jan_aushadhi_price_per_strip": 12.0
+  },
+  {
+    "brand": "Augmentin 625 Duo",
+    "salt": "Amoxicillin Clavulanate",
+    "strength": "625mg",
+    "brand_price_per_strip": 220.0,
+    "strip_size": 10,
+    "jan_aushadhi_name": "Amoxycillin and Potassium Clavulanate Tablets IP 625mg",
+    "jan_aushadhi_price_per_strip": 65.0
+  },
+  {
+    "brand": "Moxikind-CV 625",
+    "salt": "Amoxicillin Clavulanate",
+    "strength": "625mg",
+    "brand_price_per_strip": 195.0,
+    "strip_size": 10,
+    "jan_aushadhi_name": "Amoxycillin and Potassium Clavulanate Tablets IP 625mg",
+    "jan_aushadhi_price_per_strip": 65.0
+  },
+  {
+    "brand": "Glycomet-GP 1",
+    "salt": "Glimepiride Metformin",
+    "strength": "1mg/500mg",
+    "brand_price_per_strip": 128.0,
+    "strip_size": 15,
+    "jan_aushadhi_name": "Glimepiride and Metformin Tablets IP 1mg/500mg",
+    "jan_aushadhi_price_per_strip": 22.0
+  }
+]

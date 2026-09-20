@@ -1,0 +1,64 @@
+brand,manufacturer,salts,form,strength,typical_brand_price_inr,pack_size,jan_aushadhi_generic,jan_aushadhi_price_inr
+Dolo 650,Micro Labs,Paracetamol,tablet,650 mg,30.00,15,Paracetamol 650mg Tablet,10.50
+Calpol 650,GlaxoSmithKline,Paracetamol,tablet,650 mg,32.00,15,Paracetamol 650mg Tablet,10.50
+Crocin Advance,GlaxoSmithKline,Paracetamol,tablet,500 mg,28.00,15,Paracetamol 500mg Tablet,8.00
+Paracip 500,Cipla,Paracetamol,tablet,500 mg,22.00,10,Paracetamol 500mg Tablet,8.00
+Combiflam,Sanofi,Ibuprofen+Paracetamol,tablet,400 mg + 325 mg,42.00,20,Ibuprofen 400mg + Paracetamol 325mg Tablet,14.00
+Brufen 400,Abbott,Ibuprofen,tablet,400 mg,38.00,15,Ibuprofen 400mg Tablet,9.00
+Telma 40,Glenmark,Telmisartan,tablet,40 mg,128.00,15,Telmisartan 40mg Tablet,28.00
+Telmikind 40,Mankind,Telmisartan,tablet,40 mg,110.00,15,Telmisartan 40mg Tablet,28.00
+Telsartan 40,Dr Reddys,Telmisartan,tablet,40 mg,132.00,15,Telmisartan 40mg Tablet,28.00
+Amlokind AT,Mankind,Amlodipine+Atenolol,tablet,5 mg + 50 mg,72.00,15,Amlodipine 5mg + Atenolol 50mg Tablet,22.00
+Amlopres 5,Cipla,Amlodipine,tablet,5 mg,62.00,15,Amlodipine 5mg Tablet,7.50
+Stamlo 5,Dr Reddys,Amlodipine,tablet,5 mg,68.00,15,Amlodipine 5mg Tablet,7.50
+Ecosprin 75,USV,Aspirin,tablet,75 mg,12.00,14,Aspirin 75mg Tablet,3.50
+Disprin,Reckitt,Aspirin,tablet,325 mg,10.00,10,Aspirin 325mg Tablet,4.00
+Glycomet 500,USV,Metformin,tablet,500 mg,38.00,20,Metformin 500mg Tablet,9.50
+Gluconorm G1,Lupin,Glimepiride+Metformin,tablet,1 mg + 500 mg,112.00,15,Glimepiride 1mg + Metformin 500mg Tablet,26.00
+Amaryl 1,Sanofi,Glimepiride,tablet,1 mg,96.00,10,Glimepiride 1mg Tablet,11.00
+Zoryl 1,Intas,Glimepiride,tablet,1 mg,88.00,10,Glimepiride 1mg Tablet,11.00
+Atorva 10,Zydus,Atorvastatin,tablet,10 mg,82.00,15,Atorvastatin 10mg Tablet,14.00
+Lipvas 10,Cipla,Atorvastatin,tablet,10 mg,94.00,15,Atorvastatin 10mg Tablet,14.00
+Storvas 10,Ranbaxy,Atorvastatin,tablet,10 mg,88.00,15,Atorvastatin 10mg Tablet,14.00
+Rosuvas 10,Sun Pharma,Rosuvastatin,tablet,10 mg,148.00,15,Rosuvastatin 10mg Tablet,32.00
+Pan 40,Alkem,Pantoprazole,tablet,40 mg,132.00,15,Pantoprazole 40mg Tablet,22.00
+Pantocid 40,Sun Pharma,Pantoprazole,tablet,40 mg,140.00,15,Pantoprazole 40mg Tablet,22.00
+Pantop 40,Aristo,Pantoprazole,tablet,40 mg,126.00,15,Pantoprazole 40mg Tablet,22.00
+Omez 20,Dr Reddys,Omeprazole,capsule,20 mg,68.00,20,Omeprazole 20mg Capsule,12.00
+Rantac 150,JB Chemicals,Ranitidine,tablet,150 mg,32.00,20,Ranitidine 150mg Tablet,7.00
+Azithral 500,Alembic,Azithromycin,tablet,500 mg,118.00,5,Azithromycin 500mg Tablet,38.00
+Azee 500,Cipla,Azithromycin,tablet,500 mg,124.00,5,Azithromycin 500mg Tablet,38.00
+Augmentin 625,GlaxoSmithKline,Amoxicillin+Clavulanic Acid,tablet,500 mg + 125 mg,208.00,10,Amoxicillin 500mg + Clavulanic Acid 125mg Tablet,72.00
+Clavam 625,Alkem,Amoxicillin+Clavulanic Acid,tablet,500 mg + 125 mg,196.00,10,Amoxicillin 500mg + Clavulanic Acid 125mg Tablet,72.00
+Mox 500,Ranbaxy,Amoxicillin,capsule,500 mg,78.00,10,Amoxicillin 500mg Capsule,24.00
+Cetzine,GlaxoSmithKline,Cetirizine,tablet,10 mg,28.00,10,Cetirizine 10mg Tablet,4.50
+Alerid,Cipla,Cetirizine,tablet,10 mg,26.00,10,Cetirizine 10mg Tablet,4.50
+Montair LC,Cipla,Montelukast+Levocetirizine,tablet,10 mg + 5 mg,178.00,10,Montelukast 10mg + Levocetirizine 5mg Tablet,42.00
+Thyronorm 50,Abbott,Thyroxine Sodium,tablet,50 mcg,148.00,100,Thyroxine Sodium 50mcg Tablet,44.00
+Eltroxin 50,GlaxoSmithKline,Thyroxine Sodium,tablet,50 mcg,156.00,100,Thyroxine Sodium 50mcg Tablet,44.00
+Shelcal 500,Torrent,Calcium Carbonate+Vitamin D3,tablet,500 mg + 250 IU,118.00,15,Calcium Carbonate 500mg + Vitamin D3 250IU Tablet,26.00
+Neurobion Forte,Merck,Vitamin B Complex,tablet,-,42.00,30,Vitamin B Complex Tablet,14.00
+Zincovit,Apex,Multivitamin+Zinc,tablet,-,110.00,15,Multivitamin + Zinc Tablet,32.00
+Losar 50,Unichem,Losartan,tablet,50 mg,78.00,15,Losartan 50mg Tablet,16.00
+Met XL 25,Ajanta,Metoprolol,tablet,25 mg,72.00,15,Metoprolol 25mg Tablet,13.00
+Concor 5,Merck,Bisoprolol,tablet,5 mg,142.00,10,Bisoprolol 5mg Tablet,26.00
+Lasix 40,Sanofi,Furosemide,tablet,40 mg,38.00,15,Furosemide 40mg Tablet,7.00
+Dytor 10,Cipla,Torsemide,tablet,10 mg,96.00,15,Torsemide 10mg Tablet,19.00
+Clopitab 75,Torrent,Clopidogrel,tablet,75 mg,98.00,10,Clopidogrel 75mg Tablet,22.00
+Deplatt 75,Torrent,Clopidogrel,tablet,75 mg,92.00,10,Clopidogrel 75mg Tablet,22.00
+Pregabid 75,Intas,Pregabalin,capsule,75 mg,168.00,10,Pregabalin 75mg Capsule,38.00
+Ultracet,Janssen,Tramadol+Paracetamol,tablet,37.5 mg + 325 mg,182.00,10,Tramadol 37.5mg + Paracetamol 325mg Tablet,52.00
+Zerodol SP,Ipca,Aceclofenac+Paracetamol+Serratiopeptidase,tablet,100 mg + 325 mg + 15 mg,138.00,10,Aceclofenac 100mg + Paracetamol 325mg Tablet,34.00
+Hifenac P,Intas,Aceclofenac+Paracetamol,tablet,100 mg + 325 mg,116.00,10,Aceclofenac 100mg + Paracetamol 325mg Tablet,34.00
+Cremaffin,Abbott,Liquid Paraffin+Milk of Magnesia,syrup,-,180.00,225,,
+Cremaffin Plus,Abbott,Liquid Paraffin+Milk of Magnesia+Sodium Picosulfate,syrup,-,199.00,225,,
+Duphalac,Abbott,Lactulose,syrup,-,285.00,450,Lactulose Solution,95.00
+Orofer XT,Emcure,Ferrous Ascorbate+Folic Acid,tablet,100 mg + 1.5 mg,235.00,30,Ferrous Ascorbate + Folic Acid Tablet,68.00
+Livogen,Merck,Ferrous Fumarate+Folic Acid,tablet,152 mg + 1.5 mg,68.00,30,Ferrous Fumarate + Folic Acid Tablet,22.00
+Dulcoflex,Sanofi,Bisacodyl,tablet,5 mg,52.00,10,Bisacodyl 5mg Tablet,11.00
+Cyclopam,Indoco,Dicyclomine+Paracetamol,tablet,20 mg + 500 mg,58.00,10,Dicyclomine 20mg + Paracetamol 500mg Tablet,17.00
+Urimax D,Cipla,Tamsulosin+Dutasteride,tablet,0.4 mg + 0.5 mg,298.00,15,Tamsulosin 0.4mg + Dutasteride 0.5mg Tablet,88.00
+Nexito 5,Sun Pharma,Escitalopram,tablet,5 mg,92.00,10,Escitalopram 5mg Tablet,18.00
+Razo 20,Dr Reddys,Rabeprazole,tablet,20 mg,148.00,15,Rabeprazole 20mg Tablet,26.00
+Cardivas 3.125,Sun Pharma,Carvedilol,tablet,3.125 mg,78.00,10,Carvedilol 3.125mg Tablet,15.00
+Nicardia Retard 20,J B Chemicals,Nifedipine,tablet,20 mg,62.00,15,Nifedipine 20mg Tablet,13.00

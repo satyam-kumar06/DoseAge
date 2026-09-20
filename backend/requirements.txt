@@ -1,0 +1,5 @@
+# The Lambda runtime already ships boto3, so nothing here is required for the
+# core flow. rapidfuzz sharpens brand matching; reportlab makes prettier PDFs.
+# Both are optional: the code falls back to the standard library without them.
+rapidfuzz==3.9.7
+reportlab==4.2.5

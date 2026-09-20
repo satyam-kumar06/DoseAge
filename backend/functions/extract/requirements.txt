@@ -1,0 +1,5 @@
+# DoseWise — Extract Lambda dependencies
+# Python 3.12 Lambda runtime
+
+# AWS SDK — provided by Lambda runtime, but pin here for local parity.
+boto3==1.34.144

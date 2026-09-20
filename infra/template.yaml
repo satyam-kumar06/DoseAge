@@ -1,0 +1,506 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  DoseWise - medicine safety for elderly parents. Fully serverless:
+  API Gateway HTTP API, Lambda, DynamoDB single table, S3, Step Functions
+  (scan pipeline + dose escalation), EventBridge Scheduler, SNS, Polly,
+  Textract, Bedrock, Cognito.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, prod]
+  BedrockRegion:
+    Type: String
+    Default: ap-south-1
+    Description: Fall back to us-east-1 if the model is not available in Mumbai.
+  BedrockModelId:
+    Type: String
+    Default: apac.amazon.nova-pro-v1:0
+    Description: >
+      Any Bedrock vision model: the extraction Lambda uses the Converse API,
+      which is model-agnostic. List what THIS account can actually reach with
+      `aws bedrock list-inference-profiles --region ap-south-1` rather than
+      assuming - availability differs by account (Marketplace subscriptions,
+      Legacy retirement, seller of record). Nova is first-party AWS and needs
+      no Marketplace subscription, which is why it is the default.
+  DemoMode:
+    Type: String
+    Default: "0"
+    AllowedValues: ["0", "1"]
+    Description: 1 collapses the 30 minute escalation waits to 30 seconds.
+  AlarmEmail:
+    Type: String
+    Default: ""
+    Description: Optional address for the billing and error alarms.
+
+Conditions:
+  HasAlarmEmail: !Not [!Equals [!Ref AlarmEmail, ""]]
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 512
+    Architectures: [arm64]
+    Tracing: Active
+    Environment:
+      Variables:
+        DOSEWISE_BACKEND: aws
+        TABLE_NAME: !Ref DoseWiseTable
+        BUCKET_NAME: !Ref MediaBucket
+        BEDROCK_REGION: !Ref BedrockRegion
+        BEDROCK_MODEL_ID: !Ref BedrockModelId
+        DEMO_MODE: !Ref DemoMode
+        DEFAULT_TIMEZONE: Asia/Kolkata
+        POWERTOOLS_SERVICE_NAME: dosewise
+
+Resources:
+  # ------------------------------------------------------------------ data
+  DoseWiseTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "DoseWise-${Stage}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: PK, AttributeType: S }
+        - { AttributeName: SK, AttributeType: S }
+        - { AttributeName: GSI1PK, AttributeType: S }
+        - { AttributeName: GSI1SK, AttributeType: S }
+      KeySchema:
+        - { AttributeName: PK, KeyType: HASH }
+        - { AttributeName: SK, KeyType: RANGE }
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - { AttributeName: GSI1PK, KeyType: HASH }
+            - { AttributeName: GSI1SK, KeyType: RANGE }
+          Projection: { ProjectionType: ALL }
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: aws:kms }
+      LifecycleConfiguration:
+        Rules:
+          # Raw prescription images are deleted after 30 days. Privacy promise.
+          - Id: DeleteRawScans
+            Status: Enabled
+            Prefix: scans/
+            ExpirationInDays: 30
+          - Id: DeleteVisitCards
+            Status: Enabled
+            Prefix: visit-cards/
+            ExpirationInDays: 7
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [GET, PUT, HEAD]
+            AllowedOrigins: ["*"]
+            AllowedHeaders: ["*"]
+            MaxAge: 3000
+
+  # ------------------------------------------------------------------ auth
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "dosewise-${Stage}"
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      MfaConfiguration: "OFF"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireNumbers: true
+          RequireLowercase: true
+          RequireUppercase: false
+          RequireSymbols: false
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - { Name: verified_email, Priority: 1 }
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: dosewise-web
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders: [COGNITO]
+
+  # ------------------------------------------------------------------- api
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref Stage
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowHeaders: [content-type, authorization]
+        AllowMethods: [GET, POST, PUT, DELETE, OPTIONS]
+      Auth:
+        Authorizers:
+          CognitoAuthorizer:
+            IdentitySource: "$request.header.Authorization"
+            JwtConfiguration:
+              audience: [!Ref UserPoolClient]
+              issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"
+        # No DefaultAuthorizer on purpose: routes stay public so judges get a
+        # working link without signing up. The authorizer above is defined and
+        # ready; add `DefaultAuthorizer: CognitoAuthorizer` here for a real
+        # launch. (SAM has no "NONE" value — omitting the key IS none.)
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-api-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/api/handler.lambda_handler
+      Environment:
+        Variables:
+          SCAN_STATE_MACHINE_ARN: !Ref ScanStateMachine
+          ESCALATION_STATE_MACHINE_ARN: !Ref EscalationStateMachine
+          SCHEDULER_ROLE_ARN: !GetAtt SchedulerInvokeRole.Arn
+          SCHEDULER_GROUP: default
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+        - S3CrudPolicy: { BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}" }
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [polly:SynthesizeSpeech]
+              Resource: "*"
+            - Effect: Allow
+              Action: [scheduler:CreateSchedule, scheduler:UpdateSchedule, scheduler:GetSchedule, scheduler:DeleteSchedule]
+              Resource: "*"
+            - Effect: Allow
+              Action: [iam:PassRole]
+              Resource: !GetAtt SchedulerInvokeRole.Arn
+            - Effect: Allow
+              Action: [sns:Publish]
+              Resource: "*"
+            - Effect: Allow
+              Action: [states:StartExecution, states:StartSyncExecution]
+              Resource: [!Ref ScanStateMachine, !Ref EscalationStateMachine]
+      Events:
+        Any:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /{proxy+}
+            Method: ANY
+        Root:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /
+            Method: ANY
+
+  # --------------------------------------------------------- scan pipeline
+  ExtractFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-extract-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/extract/handler.extract_text
+      Timeout: 120
+      MemorySize: 1024
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+        - S3ReadPolicy: { BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}" }
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [textract:DetectDocumentText, textract:AnalyzeDocument]
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
+                - bedrock:ConverseStream
+                - bedrock:GetFoundationModel
+                - bedrock:ListFoundationModels
+                - bedrock:GetInferenceProfile
+                - bedrock:ListInferenceProfiles
+              Resource: "*"
+            # Newer Claude models are delivered through a Bedrock Marketplace
+            # subscription. A GLOBAL inference profile routes the request across
+            # regions, so a call can land where the subscription has not been
+            # established and fail with AccessDeniedException naming these
+            # actions. Granting them lets Bedrock settle it on first use.
+            - Effect: Allow
+              Action:
+                - aws-marketplace:ViewSubscriptions
+                - aws-marketplace:Subscribe
+              Resource: "*"
+
+  SaltLookupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-salt-lookup-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/extract/handler.match_salts
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref DoseWiseTable }
+
+  DuplicateCheckFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-duplicate-check-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/extract/handler.check_duplicates
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+
+  SaveDraftFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-save-draft-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/extract/handler.save_draft
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+
+  ScanFailureFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-scan-failure-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/extract/handler.on_failure
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+
+  ScanStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "dosewise-scan-${Stage}"
+      Type: EXPRESS
+      DefinitionUri: ../backend/statemachines/scan.asl.json
+      DefinitionSubstitutions:
+        ExtractFunctionArn: !GetAtt ExtractFunction.Arn
+        SaltLookupFunctionArn: !GetAtt SaltLookupFunction.Arn
+        DuplicateCheckFunctionArn: !GetAtt DuplicateCheckFunction.Arn
+        SaveDraftFunctionArn: !GetAtt SaveDraftFunction.Arn
+        ScanFailureFunctionArn: !GetAtt ScanFailureFunction.Arn
+      Logging:
+        Level: ALL
+        IncludeExecutionData: true
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt ScanLogGroup.Arn
+      Policies:
+        - LambdaInvokePolicy: { FunctionName: !Ref ExtractFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref SaltLookupFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref DuplicateCheckFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref SaveDraftFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref ScanFailureFunction }
+        - CloudWatchLogsFullAccess
+
+  ScanLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/vendedlogs/states/dosewise-scan-${Stage}"
+      RetentionInDays: 14
+
+  # ------------------------------------------------------ dose escalation
+  SendReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-send-reminder-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.send_reminder
+      Policies: &escalationPolicies
+        - DynamoDBCrudPolicy: { TableName: !Ref DoseWiseTable }
+        - S3CrudPolicy: { BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}" }
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [sns:Publish, polly:SynthesizeSpeech]
+              Resource: "*"
+
+  CheckTakenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-check-taken-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.check_taken
+      Policies: *escalationPolicies
+
+  NudgeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-nudge-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.nudge
+      Policies: *escalationPolicies
+
+  AlertFamilyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-alert-family-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.alert_family
+      Policies: *escalationPolicies
+
+  MarkMissedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-mark-missed-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.mark_missed
+      Policies: *escalationPolicies
+
+  TopUpDosesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-top-up-doses-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/escalation/handler.top_up_doses
+      Timeout: 120
+      Policies: *escalationPolicies
+      Events:
+        Nightly:
+          Type: Schedule
+          Properties:
+            # 02:00 Asia/Kolkata
+            Schedule: cron(30 20 * * ? *)
+            Name: !Sub "dosewise-nightly-${Stage}"
+
+  EscalationStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub "dosewise-escalation-${Stage}"
+      Type: STANDARD
+      DefinitionUri: ../backend/statemachines/escalation.asl.json
+      DefinitionSubstitutions:
+        SendReminderFunctionArn: !GetAtt SendReminderFunction.Arn
+        CheckTakenFunctionArn: !GetAtt CheckTakenFunction.Arn
+        NudgeFunctionArn: !GetAtt NudgeFunction.Arn
+        AlertFamilyFunctionArn: !GetAtt AlertFamilyFunction.Arn
+        MarkMissedFunctionArn: !GetAtt MarkMissedFunction.Arn
+      Policies:
+        - LambdaInvokePolicy: { FunctionName: !Ref SendReminderFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref CheckTakenFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref NudgeFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref AlertFamilyFunction }
+        - LambdaInvokePolicy: { FunctionName: !Ref MarkMissedFunction }
+
+  SchedulerInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: scheduler.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StartEscalation
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: states:StartExecution
+                Resource: !Ref EscalationStateMachine
+
+  # ------------------------------------------------------- visit card, voice
+  VisitCardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-visit-card-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/visit_card/handler.lambda_handler
+      Timeout: 60
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref DoseWiseTable }
+        - S3CrudPolicy: { BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}" }
+
+  VoiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "dosewise-voice-${Stage}"
+      CodeUri: ../backend/
+      Handler: functions/voice/handler.lambda_handler
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref DoseWiseTable }
+        - S3CrudPolicy: { BucketName: !Sub "dosewise-media-${Stage}-${AWS::AccountId}" }
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [polly:SynthesizeSpeech]
+              Resource: "*"
+
+  # ------------------------------------------------------------ operations
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Condition: HasAlarmEmail
+    Properties:
+      TopicName: !Sub "dosewise-alarms-${Stage}"
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref AlarmEmail
+
+  BillingAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasAlarmEmail
+    Properties:
+      AlarmName: !Sub "dosewise-billing-20usd-${Stage}"
+      AlarmDescription: Estimated charges crossed 20 USD.
+      Namespace: AWS/Billing
+      MetricName: EstimatedCharges
+      Dimensions: [{ Name: Currency, Value: USD }]
+      Statistic: Maximum
+      Period: 21600
+      EvaluationPeriods: 1
+      Threshold: 20
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions: [!Ref AlarmTopic]
+
+  ApiErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: HasAlarmEmail
+    Properties:
+      AlarmName: !Sub "dosewise-api-errors-${Stage}"
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions: [{ Name: FunctionName, Value: !Ref ApiFunction }]
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 3
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions: [!Ref AlarmTopic]
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the frontend (VITE_API_BASE)
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+  TableName:
+    Value: !Ref DoseWiseTable
+  BucketName:
+    Value: !Ref MediaBucket
+  UserPoolId:
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  ScanStateMachineArn:
+    Value: !Ref ScanStateMachine
+  EscalationStateMachineArn:
+    Value: !Ref EscalationStateMachine

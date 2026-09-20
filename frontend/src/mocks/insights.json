@@ -1,0 +1,25 @@
+{
+  "savings": {
+    "monthlyTotal": 1240,
+    "items": [
+      { "brand": "Telma 40",        "generic": "Telmisartan 40mg (Jan Aushadhi)", "brandPrice": 168, "genericPrice": 32, "monthlySaving": 408 },
+      { "brand": "Atorvastatin 10", "generic": "Atorvastatin 10mg (Jan Aushadhi)", "brandPrice": 145, "genericPrice": 21, "monthlySaving": 372 },
+      { "brand": "Dolo 650",        "generic": "Paracetamol 650mg (Jan Aushadhi)", "brandPrice": 32,  "genericPrice": 9,  "monthlySaving": 460 }
+    ],
+    "disclaimer": "Ask your doctor or pharmacist before switching."
+  },
+  "refills": [
+    { "brand": "Telma 40",        "daysLeft": 2, "tabletsLeft": 2 },
+    { "brand": "Atorvastatin 10", "daysLeft": 6, "tabletsLeft": 6 }
+  ],
+  "adherence7d": [
+    { "day": "Sat", "taken": 3, "scheduled": 3 },
+    { "day": "Sun", "taken": 3, "scheduled": 3 },
+    { "day": "Mon", "taken": 2, "scheduled": 3 },
+    { "day": "Tue", "taken": 3, "scheduled": 3 },
+    { "day": "Wed", "taken": 3, "scheduled": 3 },
+    { "day": "Thu", "taken": 2, "scheduled": 3 },
+    { "day": "Fri", "taken": 0, "scheduled": 3 }
+  ],
+  "parent": { "name": "Mummy ji", "age": 68, "phone": "+91 98XXX XXXXX" }
+}

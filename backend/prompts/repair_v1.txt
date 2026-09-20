@@ -1,0 +1,10 @@
+The previous response was not valid JSON matching the required schema.
+
+Error: {error}
+
+Previous response:
+{previous}
+
+Return ONLY the corrected JSON object. No explanation, no markdown fence.
+Do not invent data to fill gaps: keep '' for unknown strings and 0 for
+unknown numbers. Preserve every medicine that was already read correctly.

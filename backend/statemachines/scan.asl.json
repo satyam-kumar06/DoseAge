@@ -1,0 +1,129 @@
+{
+  "Comment": "DoseWise scan pipeline. Express workflow: fast, cheap, per-millisecond billing. AI reads, code decides.",
+  "StartAt": "ExtractText",
+  "States": {
+    "ExtractText": {
+      "Type": "Task",
+      "Comment": "Textract for printed layout, then Bedrock vision for handwriting and structure.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ExtractFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": {
+        "result.$": "$.Payload"
+      },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed", "Lambda.ServiceException", "Lambda.TooManyRequestsException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "ResultPath": "$.error",
+          "Next": "ScanFailed"
+        }
+      ],
+      "Next": "AnyMedicinesFound"
+    },
+
+    "AnyMedicinesFound": {
+      "Type": "Choice",
+      "Comment": "An empty read is not a crash. The UI offers a retake.",
+      "Choices": [
+        {
+          "Variable": "$.extracted.medicines[0]",
+          "IsPresent": true,
+          "Next": "MatchSalts"
+        }
+      ],
+      "Default": "SaveDraft"
+    },
+
+    "MatchSalts": {
+      "Type": "Task",
+      "Comment": "Brand to salt lookup over the dataset. Plain code, not the model.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${SaltLookupFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        { "ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "ScanFailed" }
+      ],
+      "Next": "CheckDuplicates"
+    },
+
+    "CheckDuplicates": {
+      "Type": "Task",
+      "Comment": "Deterministic same-salt detection. We flag; a doctor decides.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${DuplicateCheckFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Catch": [
+        { "ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "ScanFailed" }
+      ],
+      "Next": "SaveDraft"
+    },
+
+    "SaveDraft": {
+      "Type": "Task",
+      "Comment": "Saved as NEEDS_REVIEW. Nothing becomes a real medicine until a human confirms it.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${SaveDraftFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    },
+
+    "ScanFailed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${ScanFailureFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "End": true
+    }
+  }
+}

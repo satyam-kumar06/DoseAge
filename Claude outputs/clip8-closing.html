@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>DoseAge closing slide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal:#0F766E; --teal-deep:#0B5A54;
+    --cream:#FAF7F2; --ink:#14201C; --ink-soft:#4B5A55; --ink-faint:#7C8A85;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#F3EEE6;overflow:hidden}
+  body{font-family:"Noto Sans",system-ui,sans-serif;color:var(--ink);
+       display:grid;place-items:center}
+
+  /* A 16:9 stage that fits any window, so fullscreen at 1920x1080 gives a
+     clean frame to record with no letterboxing inside the picture. */
+  .stage{
+    position:relative;
+    width:100vw;height:56.25vw;
+    max-height:100vh;max-width:177.78vh;
+    background:radial-gradient(125% 95% at 50% 4%, #FFFFFF 0%, var(--cream) 52%, #F1EBE2 100%);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    /* one unit to rule them all: 1% of stage height */
+    --u:1%;
+  }
+
+  .bloom{
+    position:absolute;left:50%;top:42%;
+    width:70%;aspect-ratio:1;transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(15,118,110,.14) 0%, rgba(15,118,110,0) 62%);
+    pointer-events:none;
+  }
+  .ghost{position:absolute;border-radius:999px;
+         border:0.9vh solid rgba(15,118,110,.05);pointer-events:none}
+  .g1{width:38%;aspect-ratio:2.2;left:-10%;top:7%;transform:rotate(-28deg)}
+  .g2{width:29%;aspect-ratio:2.2;right:-7%;bottom:7%;transform:rotate(-28deg)}
+
+  .inner{position:relative;text-align:center;padding:0 6%}
+
+  .mark{
+    width:16vh;height:16vh;display:block;margin:0 auto 4.6vh;
+    filter:drop-shadow(0 2.2vh 4.4vh rgba(15,118,110,.28));
+    animation:rise .95s cubic-bezier(.22,.61,.36,1) both;
+  }
+
+  .wordmark{
+    font-size:11.6vh;line-height:1;font-weight:900;letter-spacing:-.035em;
+    animation:rise .95s cubic-bezier(.22,.61,.36,1) .12s both;
+  }
+  .wordmark span{color:var(--teal)}
+
+  .rule{
+    width:8vh;height:.55vh;min-height:3px;border-radius:999px;
+    background:var(--teal);opacity:.3;margin:3.6vh auto;
+    animation:widen 1s cubic-bezier(.22,.61,.36,1) .46s both;
+  }
+
+  .tagline{
+    font-size:4.6vh;line-height:1.24;font-weight:700;
+    color:var(--ink-soft);letter-spacing:-.012em;
+    animation:rise .95s cubic-bezier(.22,.61,.36,1) .3s both;
+  }
+  .hindi{
+    font-family:"Noto Sans Devanagari","Noto Sans",sans-serif;
+    font-size:3.2vh;font-weight:600;color:var(--teal-deep);opacity:.8;
+    margin-top:2.2vh;
+    animation:rise .95s cubic-bezier(.22,.61,.36,1) .44s both;
+  }
+
+  .foot{
+    position:absolute;left:0;right:0;bottom:5.5vh;
+    display:flex;justify-content:center;align-items:center;gap:2.6vh;
+    font-size:2.2vh;font-weight:600;color:var(--ink-faint);letter-spacing:.012em;
+    animation:fade .9s ease .8s both;
+  }
+  .foot b{color:var(--teal-deep);font-weight:700}
+  .dot{width:.55vh;height:.55vh;min-width:3px;min-height:3px;
+       border-radius:999px;background:currentColor;opacity:.5}
+
+  @keyframes rise{from{opacity:0;transform:translateY(2.4vh)}to{opacity:1;transform:none}}
+  @keyframes widen{from{opacity:0;width:0}to{opacity:.3;width:8vh}}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .mark,.wordmark,.rule,.tagline,.hindi,.foot{animation:none}
+    .rule{opacity:.3;width:8vh}
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+  <div class="bloom"></div>
+  <div class="ghost g1"></div>
+  <div class="ghost g2"></div>
+
+  <div class="inner">
+    <svg class="mark" viewBox="0 0 192 192" role="img" aria-label="DoseAge">
+      <rect width="192" height="192" rx="44" fill="#0F766E"/>
+      <g transform="rotate(-45 96 96)">
+        <rect x="52" y="76" width="88" height="40" rx="20" fill="#FAF7F2"/>
+        <path d="M96 76h44a20 20 0 0 1 0 40H96z" fill="#E6F2F0"/>
+        <rect x="94" y="76" width="4" height="40" fill="#0F766E" opacity=".35"/>
+      </g>
+      <circle cx="140" cy="52" r="20" fill="#16A34A"/>
+      <path d="M131 52l6 7 12-14" stroke="#FAF7F2" stroke-width="6" fill="none"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <h1 class="wordmark">Dose<span>Age</span></h1>
+    <div class="rule"></div>
+    <p class="tagline">No pill should be a mistake.</p>
+    <p class="hindi">कोई दवा गलती न बने।</p>
+  </div>
+
+  <div class="foot">
+    <span>github.com/satyam-kumar06/DoseWise</span>
+    <span class="dot"></span>
+    <span>Built on <b>AWS</b></span>
+    <span class="dot"></span>
+    <span>First Commit 2026</span>
+  </div>
+</main>
+</body>
+</html>

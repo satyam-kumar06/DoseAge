@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.aws-sam/
+backend/.local/
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+.env
+.env.local
+frontend/.env.local
+.DS_Store

@@ -1,0 +1,22 @@
+{
+  "scanId": "scan_demo_001",
+  "status": "READY_FOR_REVIEW",
+  "promptVersion": "extract_v2",
+  "rawText": "Dr. A. Sharma  MBBS MD\nTab. Dolo 650  1-0-1  x 5d  (after food)\nTab. Calpol 500 0-0-1 x 3d (after food)\nTab. Telma 40  1-0-0  continue (before food)\nCap. B-Complex 0-1-0 x 15d (after food)\nTab. Atorvastatin 10 0-0-1 continue",
+  "medicines": [
+    { "id": "m1", "brand": "Dolo 650",        "salts": ["Paracetamol"],   "strength": "650 mg", "form": "tablet", "frequency_code": "1-0-1", "slots": ["Morning", "Night"], "food": "after_food",  "durationDays": 5,  "confidence": 0.94, "verified": true,  "source_text": "Tab. Dolo 650 1-0-1 x 5d" },
+    { "id": "m2", "brand": "Calpol 500",      "salts": ["Paracetamol"],   "strength": "500 mg", "form": "tablet", "frequency_code": "0-0-1", "slots": ["Night"],            "food": "after_food",  "durationDays": 3,  "confidence": 0.88, "verified": true,  "source_text": "Tab. Calpol 500 0-0-1 x 3d" },
+    { "id": "m3", "brand": "Telma 40",        "salts": ["Telmisartan"],   "strength": "40 mg",  "form": "tablet", "frequency_code": "1-0-0", "slots": ["Morning"],          "food": "before_food", "durationDays": 30, "confidence": 0.91, "verified": true,  "source_text": "Tab. Telma 40 1-0-0 continue" },
+    { "id": "m4", "brand": "B-Complex",       "salts": ["Vitamin B Complex"], "strength": "",   "form": "capsule","frequency_code": "0-1-0", "slots": ["Afternoon"],        "food": "after_food",  "durationDays": 15, "confidence": 0.63, "verified": false, "source_text": "Cap. B-Complex 0-1-0 x 15d" },
+    { "id": "m5", "brand": "Atorvastatin 10", "salts": ["Atorvastatin"],  "strength": "10 mg",  "form": "tablet", "frequency_code": "0-0-1", "slots": ["Night"],            "food": "after_food",  "durationDays": 30, "confidence": 0.89, "verified": true,  "source_text": "Tab. Atorvastatin 10 0-0-1 continue" }
+  ],
+  "alerts": [
+    {
+      "type": "DUPLICATE",
+      "salt": "Paracetamol",
+      "medicines": ["Dolo 650", "Calpol 500"],
+      "message": "Dolo 650 and Calpol 500 both contain Paracetamol. Ask your doctor before taking both."
+    }
+  ],
+  "unreadable_lines": ["Dr. A. Sharma MBBS MD"]
+}

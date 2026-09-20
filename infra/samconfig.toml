@@ -1,0 +1,22 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "dosewise-dev"
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+parameter_overrides = "Stage=\"dev\" BedrockRegion=\"ap-south-1\" BedrockModelId=\"global.anthropic.claude-haiku-4-5-20251001-v1:0\" DemoMode=\"1\" AlarmEmail=\"ashwin.yadav736dmy@gmail.com\""
+s3_prefix = "dosewise-dev"
+profile = "dosewise"
+image_repositories = []
+
+[default.global.parameters]
+region = "ap-south-1"
+[prod.deploy.parameters]
+stack_name = "dosewise-prod"
+region = "ap-south-1"
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+confirm_changeset = true
+parameter_overrides = "Stage=prod BedrockRegion=ap-south-1 DemoMode=0"

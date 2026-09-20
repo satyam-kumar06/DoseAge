@@ -1,0 +1,80 @@
+{
+  "medicines": [
+    {
+      "brand": "Telma 40",
+      "strength": "40 mg",
+      "form": "tablet",
+      "frequency_code": "0-0-1",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.94,
+      "source_text": "Tab. Telma 40mg 0-0-1 x 30d (after food)"
+    },
+    {
+      "brand": "Ecosprin 75",
+      "strength": "75 mg",
+      "form": "tablet",
+      "frequency_code": "0-1-0",
+      "food": "after",
+      "duration_days": 30,
+      "confidence": 0.91,
+      "source_text": "Ecosprin 75 - 0-1-0 after lunch"
+    },
+    {
+      "brand": "Dolo 650",
+      "strength": "650 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-1",
+      "food": "after",
+      "duration_days": 5,
+      "confidence": 0.88,
+      "source_text": "Dolo 650 1-0-1 x 5d"
+    },
+    {
+      "brand": "Calpol 650",
+      "strength": "650 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "after",
+      "duration_days": 5,
+      "confidence": 0.64,
+      "source_text": "Calpol 650 SOS fever 1-0-0"
+    },
+    {
+      "brand": "Shelcal 500",
+      "strength": "500 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "after",
+      "duration_days": 60,
+      "confidence": 0.86,
+      "source_text": "Shelcal 500 OD morning"
+    },
+    {
+      "brand": "Glycomet 500",
+      "strength": "500 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-1",
+      "food": "before",
+      "duration_days": 30,
+      "confidence": 0.79,
+      "source_text": "Glycomet 500 BD before food"
+    },
+    {
+      "brand": "Pan 40",
+      "strength": "40 mg",
+      "form": "tablet",
+      "frequency_code": "1-0-0",
+      "food": "before",
+      "duration_days": 14,
+      "confidence": 0.83,
+      "source_text": "Pan-40 1-0-0 empty stomach"
+    }
+  ],
+  "unreadable_lines": [
+    "Rev. after 2 wks",
+    "T. ___ 1-0-1 (illegible)"
+  ],
+  "doctor_name": "Dr. R. Sharma",
+  "prescription_date": "2026-09-14"
+}

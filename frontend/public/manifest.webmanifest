@@ -1,0 +1,14 @@
+{
+  "name": "DoseWise",
+  "short_name": "DoseWise",
+  "description": "No pill is a mistake.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0F766E",
+  "lang": "hi",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

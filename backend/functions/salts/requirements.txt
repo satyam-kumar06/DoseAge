@@ -1,0 +1,9 @@
+# DoseWise — Salts Lambda dependencies
+# Pin to versions tested with Python 3.12 Lambda runtime
+
+# Fuzzy string matching for brand name lookup
+rapidfuzz==3.9.7
+
+# boto3 is provided by the Lambda runtime but pin here for local parity.
+# Remove from the deployment package if you're using a Lambda Layer.
+boto3==1.34.144

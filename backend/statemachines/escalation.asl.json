@@ -1,0 +1,147 @@
+{
+  "Comment": "DoseWise dose escalation, one execution per dose slot. Standard workflow: it bills per state transition, not per second of waiting, so an hour of waiting costs nothing.",
+  "StartAt": "SendReminder",
+  "TimeoutSeconds": 10800,
+  "States": {
+    "SendReminder": {
+      "Type": "Task",
+      "Comment": "In-app Hindi voice first, SMS second. Voice is free, SMS is not.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${SendReminderFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed", "Lambda.ServiceException"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "NothingScheduled"
+    },
+
+    "NothingScheduled": {
+      "Type": "Choice",
+      "Comment": "A slot with no medicine today ends quietly.",
+      "Choices": [
+        { "Variable": "$.skipped", "IsPresent": true, "Next": "Done" }
+      ],
+      "Default": "Wait30"
+    },
+
+    "Wait30": {
+      "Type": "Wait",
+      "Comment": "30 minutes normally, 30 seconds in demo mode. The Lambda decides.",
+      "SecondsPath": "$.waitSeconds",
+      "Next": "CheckTaken1"
+    },
+
+    "CheckTaken1": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${CheckTakenFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Next": "TakenYet1"
+    },
+
+    "TakenYet1": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.taken", "BooleanEquals": true, "Next": "Done" }
+      ],
+      "Default": "Nudge"
+    },
+
+    "Nudge": {
+      "Type": "Task",
+      "Comment": "Second, gentler reminder. Amber, never red.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${NudgeFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Wait30b"
+    },
+
+    "Wait30b": {
+      "Type": "Wait",
+      "SecondsPath": "$.waitSeconds",
+      "Next": "CheckTaken2"
+    },
+
+    "CheckTaken2": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${CheckTakenFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Next": "TakenYet2"
+    },
+
+    "TakenYet2": {
+      "Type": "Choice",
+      "Choices": [
+        { "Variable": "$.taken", "BooleanEquals": true, "Next": "Done" }
+      ],
+      "Default": "AlertFamily"
+    },
+
+    "AlertFamily": {
+      "Type": "Task",
+      "Comment": "One hour after the dose time, the caregiver gets an SMS.",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${AlertFamilyFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 5,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "MarkMissed"
+    },
+
+    "MarkMissed": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${MarkMissedFunctionArn}",
+        "Payload.$": "$"
+      },
+      "ResultSelector": { "result.$": "$.Payload" },
+      "OutputPath": "$.result",
+      "Next": "Done"
+    },
+
+    "Done": {
+      "Type": "Succeed"
+    }
+  }
+}
